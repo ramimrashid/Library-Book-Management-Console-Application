@@ -52,6 +52,7 @@ public:
             if (book.title == title && !book.is_borrowed) {
                 book.borrow(borrower_name);
                 cout << "You borrowed: " << title << endl;
+                saveToFile();
                 return;
             }
         }
@@ -63,6 +64,7 @@ public:
             if (book.title == title && book.is_borrowed) {
                 book.returnBook();
                 cout << "You returned: " << title << endl;
+                saveToFile();
                 return;
             }
         }
@@ -98,18 +100,25 @@ public:
     }
 
     void saveToFile() const {
-        ofstream outfile("Library.data", ios::trunc);
+        ofstream outfile("data.txt", ios::trunc);
         for (const auto& book : books) {
-            outfile << book.title << endl << book.author << endl;
+            outfile << book.title << endl << book.author << endl << book.is_borrowed << endl << book.borrower << endl;
         }
         outfile.close();
     }
 
     void loadFromFile() {
-        ifstream infile("Library.data");
-        string title, author;
+        ifstream infile("data.txt");
+        string title, author, borrower;
+        bool is_borrowed;
         while (getline(infile, title) && getline(infile, author)) {
+            infile >> is_borrowed;
+            infile.ignore();
+            getline(infile, borrower);
             books.push_back(Book(title, author));
+            if (is_borrowed) {
+                books.back().borrow(borrower);
+            }
         }
         infile.close();
     }
@@ -160,4 +169,3 @@ int main() {
 
     return 0;
 }
-
